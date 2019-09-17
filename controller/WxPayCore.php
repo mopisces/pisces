@@ -8,8 +8,6 @@ class AliPayCore extends Controller
 
 	protected $VERSION     = '3.0.10';
 
-	protected $payInfo     = [];
-
 	protected $appId       = '';
 	protected $merchantId  = '';
 	protected $notifyUrl   = '';
@@ -21,8 +19,6 @@ class AliPayCore extends Controller
 
 	protected $sslCertPath = '';
 	protected $sslKeyPath  = '';
-
-
 
 	public function unifiedOrder( $payInfo, $input, $timeOut = 6  )
 	{
@@ -56,10 +52,10 @@ class AliPayCore extends Controller
 		$payInfo['spbill_create_ip'] = $_SERVER['REMOTE_ADDR'];
 		$payInfo['nonce_str']        = $this->getNonceStr();
 		$payInfo['sign']             = $this->makeSign($payInfo);
-		$this->payInfo = $payInfo;
 		$xml = $this->getToXml();
 		$response = $this->postXmlCurl( $url, $xml );
-		$this->getWxPayResult( $response, $payInfo );
+		$result = $this->getWxPayResult( $response, $payInfo );
+		return $result;
 	}
 
 	protected function makeSign( $data )
@@ -144,7 +140,7 @@ class AliPayCore extends Controller
        	return json_decode(json_encode(simplexml_load_string( $response, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
 	}
 
-	protected function postXmlCurl( $url, $xml, $useCert = FALSE ,$second = 6 )
+	protected function postXmlCurl( $url, $xml, $useCert = FALSE, $second = 6 )
 	{
 		
 		if( !isset($this->proxHost) || empty($this->proxHost) ){
